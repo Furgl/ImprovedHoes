@@ -2,21 +2,14 @@ package furgl.improvedHoes;
 
 import java.lang.reflect.Method;
 
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockDirt;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemHoe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class UseHoeEvents 
 {
@@ -28,7 +21,7 @@ public class UseHoeEvents
 		if (!event.world.isRemote && ImprovedHoes.isRegisteredHoe(event.current) && !event.entityPlayer.isSneaking())
 		{
 			radius = ImprovedHoes.calculateRadius(event.current);
-			if (event.world.getBlockState(event.pos).getBlock() instanceof BlockCrops)
+			if (event.world.getBlock(event.x, event.y, event.z) instanceof BlockCrops)
 				rightClickCrop(event);
 			else
 				rightClickDirt(event);
@@ -43,7 +36,7 @@ public class UseHoeEvents
 			for (int z=-radius; z<=radius; z++)
 			{
 				onItemUse(event, x, z);
-				event.world.markBlockForUpdate(event.pos.add(x, 0, z));
+				event.world.markBlockForUpdate(event.x+x, event.y, event.z+z);
 			}
 		}
 	}
@@ -52,105 +45,48 @@ public class UseHoeEvents
 	{
 		if(event.current.getItemDamage() == 0 && !(x == -radius && z == -radius) && !event.entityPlayer.capabilities.isCreativeMode)
 			return false;
-		try
+
+		if (!event.entityPlayer.canPlayerEdit(event.x+x, event.y, event.z+z, 0, event.current))
 		{
-			Method useHoe = ItemHoe.class.getDeclaredMethod("useHoe", ItemStack.class, EntityPlayer.class, World.class, BlockPos.class, IBlockState.class);
-			useHoe.setAccessible(true);
-			int[] TYPE_LOOKUP = new int[BlockDirt.DirtType.values().length];
-			TYPE_LOOKUP[BlockDirt.DirtType.DIRT.ordinal()] = 1;
-			TYPE_LOOKUP[BlockDirt.DirtType.COARSE_DIRT.ordinal()] = 2;
-
-			//Copied from ItemHoe.onItemUse() (to avoid infinite loop with forge event)
-			if (!event.entityPlayer.canPlayerEdit(event.pos.add(x, 0, z).offset(EnumFacing.UP), EnumFacing.UP, event.current))
-			{
-				return false;
-			}
-			else
-			{
-				/* int hook = net.minecraftforge.event.ForgeEventFactory.onHoeUse(event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z));
-            if (hook != 0) return hook > 0;*/
-
-				IBlockState iblockstate = event.world.getBlockState(event.pos.add(x, 0, z));
-				Block block = iblockstate.getBlock();
-
-				if (EnumFacing.UP != EnumFacing.DOWN && event.world.isAirBlock(event.pos.add(x, 0, z).up()))
-				{
-					if (block == Blocks.grass)
-					{
-						return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.farmland.getDefaultState());
-					}
-
-					if (block == Blocks.dirt)
-					{
-						switch (TYPE_LOOKUP[((BlockDirt.DirtType)iblockstate.getValue(BlockDirt.VARIANT)).ordinal()])
-						{
-						case 1:
-							return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.farmland.getDefaultState());
-						case 2:
-							return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.dirt.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT));
-						}
-					}
-				}
-
-				return false;
-			}
+			return false;
 		}
-		catch(Exception e)
+		else
 		{
-			try
-			{
-				Method useHoe = ItemHoe.class.getDeclaredMethod("func_179232_a", ItemStack.class, EntityPlayer.class, World.class, BlockPos.class, IBlockState.class);
-				useHoe.setAccessible(true);
-				int[] TYPE_LOOKUP = new int[BlockDirt.DirtType.values().length];
-				TYPE_LOOKUP[BlockDirt.DirtType.DIRT.ordinal()] = 1;
-				TYPE_LOOKUP[BlockDirt.DirtType.COARSE_DIRT.ordinal()] = 2;
+			/*UseHoeEvent event = new UseHoeEvent(event.entityPlayer, event.current, event.world, event.x+x, event.y, event.z+z);
+	            if (MinecraftForge.EVENT_BUS.post(event))
+	            {
+	                return false;
+	            }*/
 
-				//Copied from ItemHoe.onItemUse() (to avoid infinite loop with forge event)
-				if (!event.entityPlayer.canPlayerEdit(event.pos.add(x, 0, z).offset(EnumFacing.UP), EnumFacing.UP, event.current))
+			if (event.getResult() == Result.ALLOW)
+			{
+				event.current.damageItem(1, event.entityPlayer);
+				return true;
+			}
+
+			Block block = event.world.getBlock(event.x+x, event.y, event.z+z);
+
+			if (/*p_77648_7_ != 0 && */event.world.getBlock(event.x+x, event.y + 1, event.z+z).isAir(event.world, event.x+x, event.y + 1, event.z+z) && (block == Blocks.grass || block == Blocks.dirt))
+			{
+				Block block1 = Blocks.farmland;
+				event.world.playSoundEffect((double)((float)event.x+x + 0.5F), (double)((float)event.y + 0.5F), (double)((float)event.z+z + 0.5F), block1.stepSound.getStepResourcePath(), (block1.stepSound.getVolume() + 1.0F) / 2.0F, block1.stepSound.getPitch() * 0.8F);
+
+				if (event.world.isRemote)
 				{
-					return false;
+					return true;
 				}
 				else
 				{
-					/* int hook = net.minecraftforge.event.ForgeEventFactory.onHoeUse(event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z));
-	            if (hook != 0) return hook > 0;*/
-
-					IBlockState iblockstate = event.world.getBlockState(event.pos.add(x, 0, z));
-					Block block = iblockstate.getBlock();
-
-					if (EnumFacing.UP != EnumFacing.DOWN && event.world.isAirBlock(event.pos.add(x, 0, z).up()))
-					{
-						if (block == Blocks.grass)
-						{
-							return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.farmland.getDefaultState());
-						}
-
-						if (block == Blocks.dirt)
-						{
-							switch (TYPE_LOOKUP[((BlockDirt.DirtType)iblockstate.getValue(BlockDirt.VARIANT)).ordinal()])
-							{
-							case 1:
-								return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.farmland.getDefaultState());
-							case 2:
-								return (Boolean) useHoe.invoke(event.current.getItem(), event.current, event.entityPlayer, event.world, event.pos.add(x, 0, z), Blocks.dirt.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT));
-							}
-						}
-					}
-
-					return false;
+					event.world.setBlock(event.x+x, event.y, event.z+z, block1);
+					event.current.damageItem(1, event.entityPlayer);
+					return true;
 				}
 			}
-			catch(Exception ex)
+			else
 			{
-				e.printStackTrace();
-				System.out.println("[Improved Hoes] Error during rightClickDirt(). Please report this to the mod maker.");
-				Method[] methods = ItemHoe.class.getDeclaredMethods();
-				for (int i=0; i<methods.length; i++)
-					System.out.println("Method "+i+": "+methods[i]);
+				return false;
 			}
 		}
-
-		return false;
 	}
 
 	private void rightClickCrop(UseHoeEvent event) 
@@ -159,27 +95,13 @@ public class UseHoeEvents
 		{
 			for (int z=-radius; z<=radius; z++)
 			{
-				if (event.world.getBlockState(event.pos.add(x, 0, z)).getBlock() instanceof BlockCrops && !((BlockCrops) event.world.getBlockState(event.pos.add(x, 0, z)).getBlock()).canGrow(event.world, event.pos.add(x, 0, z), event.world.getBlockState(event.pos.add(x, 0, z)), false))
+				if (event.world.getBlock(event.x+x, event.y, event.z+z) instanceof BlockCrops)
 				{
-					BlockCrops crop = (BlockCrops) event.world.getBlockState(event.pos.add(x, 0, z)).getBlock();
-					crop.harvestBlock(event.world, event.entityPlayer, event.pos.add(x, 0, z), event.world.getBlockState(event.pos.add(x, 0, z)), null);
-					try
+					if (event.world.getBlock(event.x+x, event.y, event.z+z) instanceof BlockCrops && !((BlockCrops) event.world.getBlock(event.x+x, event.y, event.z+z)).func_149851_a(event.world, event.x+x, event.y, event.z+z, false))
 					{
-						Method method = crop.getClass().getDeclaredMethod("getSeed");
-						method.setAccessible(true);
-						Item seed = (Item) method.invoke(crop);
-						if (event.entityPlayer.capabilities.isCreativeMode || event.entityPlayer.inventory.consumeInventoryItem(seed))
-						{
-							event.entityPlayer.inventoryContainer.detectAndSendChanges();
-							event.world.setBlockState(event.pos.add(x, 0, z), crop.getStateFromMeta(0), 0);
-						}
-						else
-							event.world.setBlockToAir(event.pos.add(x, 0, z));
-						event.world.markBlockForUpdate(event.pos.add(x, 0, z));
-					}
-					catch(Exception e)
-					{
-						try 
+						BlockCrops crop = (BlockCrops) event.world.getBlock(event.x+x, event.y, event.z+z);
+						crop.harvestBlock(event.world, event.entityPlayer, event.x+x, event.y, event.z+z, event.world.getBlockMetadata(event.x+x, event.y, event.z+z));
+						try
 						{
 							Method method = crop.getClass().getDeclaredMethod("func_149866_i");
 							method.setAccessible(true);
@@ -187,15 +109,15 @@ public class UseHoeEvents
 							if (event.entityPlayer.capabilities.isCreativeMode || event.entityPlayer.inventory.consumeInventoryItem(seed))
 							{
 								event.entityPlayer.inventoryContainer.detectAndSendChanges();
-								event.world.setBlockState(event.pos.add(x, 0, z), crop.getStateFromMeta(0), 0);
+								event.world.setBlockMetadataWithNotify(event.x+x, event.y, event.z+z, 0, 0);
 							}
 							else
-								event.world.setBlockToAir(event.pos.add(x, 0, z));
-							event.world.markBlockForUpdate(event.pos.add(x, 0, z));
+								event.world.setBlockToAir(event.x+x, event.y, event.z+z);
+							event.world.markBlockForUpdate(event.x+x, event.y, event.z+z);
 						}
-						catch(Exception ex)
+						catch(Exception e)
 						{
-							ex.printStackTrace();
+							e.printStackTrace();
 							System.out.println("[Improved Hoes] Error during onPlayerInteractEvent(). Please report this to the mod maker.");
 						}
 					}
