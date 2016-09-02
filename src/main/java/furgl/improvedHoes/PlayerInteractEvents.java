@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import net.minecraft.block.BlockCrops;
 import net.minecraft.item.Item;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -13,28 +14,28 @@ public class PlayerInteractEvents
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
 	public void onEvent(PlayerInteractEvent event)
 	{
-		if (!event.world.isRemote && (event.entityPlayer.getHeldItem() == null || !ImprovedHoes.isRegisteredHoe(event.entityPlayer.getHeldItem())) && !event.entityPlayer.isSneaking())
+		if (!event.getWorld().isRemote && (event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND) == null || !ImprovedHoes.isRegisteredHoe(event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND))) && !event.getEntityPlayer().isSneaking())
 		{
 			//Copied from UseHoeEvents.rightClickCrops()
-			if (event.world.getBlockState(event.pos).getBlock() instanceof BlockCrops)
+			if (event.getWorld().getBlockState(event.getPos()).getBlock() instanceof BlockCrops)
 			{
-				if (event.world.getBlockState(event.pos).getBlock() instanceof BlockCrops && !((BlockCrops) event.world.getBlockState(event.pos).getBlock()).canGrow(event.world, event.pos, event.world.getBlockState(event.pos), false))
+				if (event.getWorld().getBlockState(event.getPos()).getBlock() instanceof BlockCrops && !((BlockCrops) event.getWorld().getBlockState(event.getPos()).getBlock()).canGrow(event.getWorld(), event.getPos(), event.getWorld().getBlockState(event.getPos()), false))
 				{
-					BlockCrops crop = (BlockCrops) event.world.getBlockState(event.pos).getBlock();
-					crop.harvestBlock(event.world, event.entityPlayer, event.pos, event.world.getBlockState(event.pos), null);
+					BlockCrops crop = (BlockCrops) event.getWorld().getBlockState(event.getPos()).getBlock();
+					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, null);
 					try
 					{
 						Method method = crop.getClass().getDeclaredMethod("getSeed");
 						method.setAccessible(true);
 						Item seed = (Item) method.invoke(crop);
-						if (event.entityPlayer.capabilities.isCreativeMode || event.entityPlayer.inventory.consumeInventoryItem(seed))
+						if (event.getEntityPlayer().capabilities.isCreativeMode || event.getEntityPlayer().inventory.clearMatchingItems(seed, -1, 1, null) == 1/*event.getEntityPlayer().inventory.consumeInventoryItem(seed)*/)
 						{
-							event.entityPlayer.inventoryContainer.detectAndSendChanges();
-							event.world.setBlockState(event.pos, crop.getStateFromMeta(0), 0);
+							event.getEntityPlayer().inventoryContainer.detectAndSendChanges();
+							event.getWorld().setBlockState(event.getPos(), crop.getStateFromMeta(0), 0);
 						}
 						else
-							event.world.setBlockToAir(event.pos);
-						event.world.markBlockForUpdate(event.pos);
+							event.getWorld().setBlockToAir(event.getPos());
+						event.getWorld().scheduleBlockUpdate(event.getPos(), event.getWorld().getBlockState(event.getPos()).getBlock(), 0, 1);//event.getWorld().markBlockForUpdate(event.getPos());
 					}
 					catch(Exception e)
 					{
@@ -43,14 +44,14 @@ public class PlayerInteractEvents
 							Method method = crop.getClass().getDeclaredMethod("func_149866_i");
 							method.setAccessible(true);
 							Item seed = (Item) method.invoke(crop);
-							if (event.entityPlayer.capabilities.isCreativeMode || event.entityPlayer.inventory.consumeInventoryItem(seed))
+							if (event.getEntityPlayer().capabilities.isCreativeMode || event.getEntityPlayer().inventory.clearMatchingItems(seed, -1, 1, null) == 1/*event.getEntityPlayer().inventory.consumeInventoryItem(seed)*/)
 							{
-								event.entityPlayer.inventoryContainer.detectAndSendChanges();
-								event.world.setBlockState(event.pos, crop.getStateFromMeta(0), 0);
+								event.getEntityPlayer().inventoryContainer.detectAndSendChanges();
+								event.getWorld().setBlockState(event.getPos(), crop.getStateFromMeta(0), 0);
 							}
 							else
-								event.world.setBlockToAir(event.pos);
-							event.world.markBlockForUpdate(event.pos);
+								event.getWorld().setBlockToAir(event.getPos());
+							event.getWorld().scheduleBlockUpdate(event.getPos(), event.getWorld().getBlockState(event.getPos()).getBlock(), 0, 1);//event.getWorld().markBlockForUpdate(event.getPos());
 						}
 						catch(Exception ex)
 						{

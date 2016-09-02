@@ -9,7 +9,7 @@ public class ConfigChangedEvents
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
 	{
-		if (event.modID.equals(ImprovedHoes.MODID)) 
+		if (event.getModID().equals(ImprovedHoes.MODID)) 
 			Config.syncConfig();
 	}
 }
