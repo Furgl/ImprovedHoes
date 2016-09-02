@@ -49,6 +49,7 @@ public class UseHoeEvents
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private boolean onItemUse(UseHoeEvent event, int x, int z) 
 	{
 		if(event.getCurrent().getItemDamage() == 0 && !(x == -radius && z == -radius) && !event.getEntityPlayer().capabilities.isCreativeMode)
@@ -68,16 +69,16 @@ public class UseHoeEvents
 			Block block = iblockstate.getBlock();
 			if (EnumFacing.UP != EnumFacing.DOWN && event.getWorld().isAirBlock(event.getPos().add(x, 0, z).up()))
 			{
-				if (block == Blocks.grass)
-					return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.farmland.getStateFromMeta(1));
-				else if (block == Blocks.dirt)
+				if (block == Blocks.GRASS)
+					return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.FARMLAND.getStateFromMeta(1));
+				else if (block == Blocks.DIRT)
 				{
 					switch (TYPE_LOOKUP[((BlockDirt.DirtType)iblockstate.getValue(BlockDirt.VARIANT)).ordinal()])
 					{
 					case 1:
-						return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.farmland.getStateFromMeta(1));
+						return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.FARMLAND.getStateFromMeta(1));
 					case 2:
-						return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.dirt.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT));
+						return useHoe(event.getCurrent(), event.getEntityPlayer(), event.getWorld(), event.getPos().add(x, 0, z), Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT));
 					}
 				}
 			}
@@ -87,7 +88,7 @@ public class UseHoeEvents
 
 	private boolean useHoe(ItemStack stack, EntityPlayer player, World worldIn, BlockPos pos, IBlockState state)
 	{
-		worldIn.playSound(player, pos, SoundEvents.item_hoe_till, SoundCategory.BLOCKS, 1.0F, 1.0F);
+		worldIn.playSound(player, pos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
 		if (!worldIn.isRemote)
 		{

@@ -1,5 +1,5 @@
 #################################################
-         ForgeGradle 2.1-SNAPSHOT-da90449        
+         ForgeGradle 2.2-SNAPSHOT-c438b06        
   https://github.com/MinecraftForge/ForgeGradle  
 #################################################
                Powered by MCP unknown               
@@ -13,7 +13,7 @@
 :compileApiJava UP-TO-DATE
 :processApiResources UP-TO-DATE
 :apiClasses UP-TO-DATE
-:sourceMainJava UP-TO-DATE
+:sourceMainJava
 :compileJavawarning: [options] bootstrap class path not set in conjunction with -source 1.7
 1 warning
 
@@ -32,7 +32,7 @@
 :genSrgs SKIPPED
 :reobfJar
 :extractRangemapReplacedMain
-C:\Users\Jake\Desktop\Modding\Jake's Modding\Improved Hoes 1.9\build\sources\main\java
+C:\Users\Jake\Desktop\Modding\Jake's Modding\Improved Hoes 1.9.4\build\sources\main\java
 :retromapReplacedMain
 remapping source...
 :sourceJar
@@ -42,4 +42,4 @@ remapping source...
 
 BUILD SUCCESSFUL
 
-Total time: 17.335 secs
+Total time: 22.799 secs
