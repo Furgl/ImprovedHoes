@@ -14,7 +14,7 @@ public class ImprovedHoes
 	public static final String MODNAME = "Improved Hoes";
 	public static final String VERSION = "1.1";
 
-	@EventHandler
+	@EventHandler 
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		Config.init(event.getSuggestedConfigurationFile());	
