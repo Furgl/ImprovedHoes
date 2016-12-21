@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "1.11-1.1"
 group= "furgl.improvedHoes" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "improvedhoes"
+archivesBaseName = "ImprovedHoes"
 
 sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
 compileJava {
