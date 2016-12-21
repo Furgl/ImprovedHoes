@@ -1,6 +1,7 @@
 package furgl.improvedHoes;
 
 import net.minecraft.block.BlockCrops;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.world.BlockEvent;
@@ -25,10 +26,11 @@ public class HarvestCheckEvents
 				{
 					if (event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock() instanceof BlockCrops && !((BlockCrops) event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock()).canGrow(event.getWorld(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), false))
 					{
+						ItemStack hoe = event.getPlayer().getHeldItem(EnumHand.MAIN_HAND);
 						BlockCrops crop = (BlockCrops) event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock();
-						crop.harvestBlock(event.getWorld(), event.getPlayer(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), (TileEntity)null, null);
+						crop.harvestBlock(event.getWorld(), event.getPlayer(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), (TileEntity)null, hoe);
 						event.getWorld().setBlockToAir(event.getPos().add(x, 0, z));
-						event.getWorld().scheduleBlockUpdate(event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock(), 0, 1);//markBlockForUpdate(event.getPos().add(x, 0, z));
+						event.getWorld().scheduleBlockUpdate(event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock(), 0, 1);
 					}
 				}
 			}

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import net.minecraft.block.BlockCrops;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -21,8 +22,9 @@ public class PlayerInteractEvents
 			{
 				if (event.getWorld().getBlockState(event.getPos()).getBlock() instanceof BlockCrops && !((BlockCrops) event.getWorld().getBlockState(event.getPos()).getBlock()).canGrow(event.getWorld(), event.getPos(), event.getWorld().getBlockState(event.getPos()), false))
 				{
+					ItemStack hoe = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
 					BlockCrops crop = (BlockCrops) event.getWorld().getBlockState(event.getPos()).getBlock();
-					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, null);
+					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, hoe);
 					try
 					{
 						Method method = crop.getClass().getDeclaredMethod("getSeed");

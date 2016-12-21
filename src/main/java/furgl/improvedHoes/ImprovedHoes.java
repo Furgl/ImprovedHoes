@@ -7,10 +7,10 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = ImprovedHoes.MODID, name = ImprovedHoes.MODNAME, version = ImprovedHoes.VERSION, guiFactory = "furgl.improvedHoes.ImprovedHoesGuiFactory")
+@Mod(modid = ImprovedHoes.MODID, name = ImprovedHoes.MODNAME, version = ImprovedHoes.VERSION, guiFactory = "furgl.improvedHoes.ImprovedHoesGuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/ImprovedHoes/1.11/update.json")
 public class ImprovedHoes
 {
-	public static final String MODID = "improvedHoes";
+	public static final String MODID = "improvedhoes";
 	public static final String MODNAME = "Improved Hoes";
 	public static final String VERSION = "1.1";
 

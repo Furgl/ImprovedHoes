@@ -106,8 +106,9 @@ public class UseHoeEvents
 			{
 				if (event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock() instanceof BlockCrops && !((BlockCrops) event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock()).canGrow(event.getWorld(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), false))
 				{
+					ItemStack hoe = event.getCurrent();
 					BlockCrops crop = (BlockCrops) event.getWorld().getBlockState(event.getPos().add(x, 0, z)).getBlock();
-					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), null, null);
+					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos().add(x, 0, z), event.getWorld().getBlockState(event.getPos().add(x, 0, z)), null, hoe);
 					try
 					{
 						Method method = crop.getClass().getDeclaredMethod("getSeed");
