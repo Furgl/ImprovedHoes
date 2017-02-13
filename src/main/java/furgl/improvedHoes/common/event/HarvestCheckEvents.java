@@ -44,14 +44,15 @@ public class HarvestCheckEvents
 					}
 				}
 			}
-			else if ((block instanceof BlockBush || block instanceof BlockLeaves || block instanceof BlockVine) && !(block instanceof BlockSapling)) {
+			else if ((block instanceof BlockBush || block instanceof BlockLeaves || block instanceof BlockVine) && 
+					!(block instanceof BlockSapling) && !(block instanceof BlockCrops)) {
 				if (!event.getWorld().isRemote)
 					for (int x=-radius; x<radius; ++x)
 						for (int y=-radius; y<radius; ++y)
 							for (int z=-radius; z<radius; ++z) {
 								IBlockState state = event.getWorld().getBlockState(event.getPos().add(x, y, z));
 								if ((state.getBlock() instanceof BlockBush || state.getBlock() instanceof BlockLeaves || state.getBlock() instanceof BlockVine) && 
-										!(state.getBlock() instanceof BlockSapling)) {
+										!(state.getBlock() instanceof BlockSapling) && !(state.getBlock() instanceof BlockCrops)) {
 									if (event.getWorld().rand.nextInt(5) == 0)
 										hoe.damageItem(1, event.getPlayer());
 									state.getBlock().harvestBlock(event.getWorld(), event.getPlayer(), event.getPos().add(x, y, z), state, null, hoe);
