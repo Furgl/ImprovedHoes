@@ -25,12 +25,12 @@ public class PlayerInteractEvents
 				{
 					ItemStack hoe = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
 					BlockCrops crop = (BlockCrops) event.getWorld().getBlockState(event.getPos()).getBlock();
-					crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, hoe);
 					try
 					{
 						Method method = crop.getClass().getDeclaredMethod("getSeed");
 						method.setAccessible(true);
 						Item seed = (Item) method.invoke(crop);
+						crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, hoe);
 						if (event.getEntityPlayer().capabilities.isCreativeMode || event.getEntityPlayer().inventory.clearMatchingItems(seed, -1, 1, null) == 1/*event.getEntityPlayer().inventory.consumeInventoryItem(seed)*/)
 						{
 							event.getEntityPlayer().inventoryContainer.detectAndSendChanges();
@@ -47,6 +47,7 @@ public class PlayerInteractEvents
 							Method method = crop.getClass().getDeclaredMethod("func_149866_i");
 							method.setAccessible(true);
 							Item seed = (Item) method.invoke(crop);
+							crop.harvestBlock(event.getWorld(), event.getEntityPlayer(), event.getPos(), event.getWorld().getBlockState(event.getPos()), null, hoe);
 							if (event.getEntityPlayer().capabilities.isCreativeMode || event.getEntityPlayer().inventory.clearMatchingItems(seed, -1, 1, null) == 1/*event.getEntityPlayer().inventory.consumeInventoryItem(seed)*/)
 							{
 								event.getEntityPlayer().inventoryContainer.detectAndSendChanges();
