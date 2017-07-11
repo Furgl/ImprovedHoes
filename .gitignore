@@ -22,7 +22,7 @@ eclipse
 run
 screenshots/
 saves/
-config/
+/config/
 world/
 options.txt
 banned-ips.json
