@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "furgl.improvedHoes.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "FarmlandBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
