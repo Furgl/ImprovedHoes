@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "improvedhoes",
+  "version": "2.0",
+
+  "name": "Improved Hoes",
+  "description": "Makes farming with hoes much quicker and easier.",
+  "authors": [
+    "Furgl"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/improved-hoes",
+    "issues": "https://github.com/Furgl/ImprovedHoes/issues",
+    "sources": "https://github.com/Furgl/ImprovedHoes"
+  },
+
+  "license": "The MIT License (MIT)",
+  "icon": "assets/improvedhoes/logo.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "furgl.improvedHoes.ImprovedHoes"
+    ]
+  },
+  "mixins": [
+    "improvedhoes.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
