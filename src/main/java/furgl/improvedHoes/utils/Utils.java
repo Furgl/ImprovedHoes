@@ -43,7 +43,7 @@ public class Utils {
 	static {
 		Field tilledBlocksField = null;
 		try {
-			tilledBlocksField = HoeItem.class.getDeclaredField("TILLED_BLOCKS");
+			tilledBlocksField = HoeItem.class.getDeclaredField("TILLING_ACTIONS");
 			getSeedsItem = CropBlock.class.getDeclaredMethod("getSeedsItem");
 		} catch (Exception e) {
 			try {
