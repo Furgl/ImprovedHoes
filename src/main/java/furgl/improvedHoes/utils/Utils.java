@@ -3,10 +3,12 @@ package furgl.improvedHoes.utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
@@ -116,11 +118,11 @@ public class Utils {
 		BlockState originalState = world.getBlockState(originalPos);
 		Block originalBlock = originalState.getBlock();
 
-		if (!world.isClient && originalBlock instanceof CropBlock) {
+		if (world instanceof ServerWorld serverWorld && originalBlock instanceof CropBlock) {
 			for (int x=-range.radius; x<=range.radius; x++)
 				for (int z=-range.radius; z<=range.radius; z++) {
 					BlockPos pos = originalPos.add(x, 0, z);
-					harvestBlock(pos, world, player, replant, stack, hand, true);
+					harvestBlock(pos, serverWorld, player, replant, stack, hand, true);
 				}
 			return !((CropBlock) originalBlock).isMature(originalState);
 		}
@@ -159,27 +161,51 @@ public class Utils {
 
 	/**Try to harvest this crop block
 	 * @return if break event should be cancelled*/
-	public static boolean harvestBlock(BlockPos pos, World world, PlayerEntity player, boolean replant, ItemStack stack, @Nullable Hand hand, boolean damageItem) throws Exception {
+	public static boolean harvestBlock(BlockPos pos, ServerWorld world, PlayerEntity player, boolean replant, ItemStack stack, @Nullable Hand hand, boolean damageItem) throws Exception {
 		BlockState state = world.getBlockState(pos);
 		Block block = state.getBlock();
 
 		// if harvestable
 		if (block instanceof CropBlock && ((CropBlock) block).isMature(state)) {
+			// get block drops
+			List<ItemStack> droppedItems = CropBlock.getDroppedStacks(state, world, pos, null, player, stack);
+
 			// check if player has seeds for replanting
-			if (replant && !player.isCreative()) {
+			outer: if (replant && !player.isCreative()) {
 				ItemConvertible itemConvertible = (ItemConvertible) getSeedsItem.invoke(block);
 				if (itemConvertible != null) {
 					Item item = itemConvertible.asItem();
+
+					// check if droppedItems contains the seed item
+					for(ItemStack is : droppedItems) {
+						if(is.getItem() == item) {
+							if(is.getCount() == 1) {
+								droppedItems.remove(is);
+							} else {
+								is.setCount(is.getCount() - 1);
+							}
+							break outer;
+						}
+					}
+
+					// check if the player has the seed item
 					if (player.getInventory().remove(inventoryStack -> inventoryStack != null && inventoryStack.getItem() == item, 1, player.getInventory()) != 1)
 						replant = false;
 				}
 			}
+
+			// drop items
+			droppedItems.forEach((is) -> {
+				CropBlock.dropStack(world, pos, is);
+			});
+			state.onStacksDropped(world, pos, stack);
+
 			// break block
-			CropBlock.dropStacks(state, world, pos, (BlockEntity)null, player, stack);
 			if (replant && Config.replantOnHarvest)
 				world.setBlockState(pos, ((CropBlock) block).getDefaultState(), Block.NOTIFY_LISTENERS);
 			else
 				world.removeBlock(pos, false);
+
 			// damage hoe
 			if (damageItem)
 				attemptDamage(1, stack, player, hand);
